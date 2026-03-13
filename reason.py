@@ -1,6 +1,6 @@
 """
 Reason Module — LLM Chain-of-Thought prompt engine.
-Uses Chutes AI API for trading decisions.
+Uses Chutes AI API; falls back to Ollama when Chutes is rate-limited (429).
 Takes perception data, builds a structured prompt, and parses LLM output
 for DECISION (BUY/SELL/HOLD) and CONFIDENCE.
 """
@@ -13,6 +13,9 @@ from typing import Any, Optional
 import requests
 
 logger = logging.getLogger(__name__)
+
+# Ollama models to try as fallback (when Chutes returns 429), in order
+OLLAMA_FALLBACK_MODELS = ("llama3", "llama3.2", "llama3.1", "mistral", "phi3")
 
 SYSTEM_PROMPT = """You are a professional crypto trading analyst. Your task is to analyze
 technical indicators and news sentiment, then output a single trading decision.
@@ -162,6 +165,26 @@ def _call_chutes_api(
     raise ValueError("Request failed after retries")
 
 
+def _call_ollama(prompt: str, model: str, temperature: float, max_tokens: int) -> str:
+    """Fallback: call local Ollama. Returns response content or raises."""
+    try:
+        import ollama
+        response = ollama.chat(
+            model=model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+            options={"temperature": temperature, "num_predict": max_tokens},
+        )
+        msg = response.get("message", {}) if isinstance(response, dict) else getattr(response, "message", None)
+        if msg is None:
+            return ""
+        return msg.get("content", "") if isinstance(msg, dict) else getattr(msg, "content", "")
+    except Exception as e:
+        raise RuntimeError(f"Ollama error: {e}") from e
+
+
 def reason(
     perception: dict[str, Any],
     model: str = "meta-llama/Llama-3.1-8B-Instruct",
@@ -169,16 +192,42 @@ def reason(
     max_tokens: int = 512,
 ) -> dict[str, Any]:
     """
-    Run LLM CoT reasoning via Chutes AI API. Returns dict with:
-    - raw_reasoning: full LLM text
-    - decision: BUY | SELL | HOLD
-    - confidence: 0-100
-    - next_check_minutes: suggested minutes
+    Run LLM CoT reasoning. Tries Chutes AI first; on 429 rate limit, falls back to Ollama.
+    Returns dict with: raw_reasoning, decision, confidence, next_check_minutes.
     """
     prompt = build_prompt(perception)
 
+    # Try Chutes AI first
     try:
         content = _call_chutes_api(prompt, model, temperature, max_tokens)
+    except requests.HTTPError as e:
+        if e.response is not None and e.response.status_code == 429:
+            logger.info("Chutes rate limited (429), trying Ollama fallback...")
+            ollama_model = os.getenv("OLLAMA_MODEL", "").strip() or None
+            models_to_try = (ollama_model,) if ollama_model else OLLAMA_FALLBACK_MODELS
+            last_err = None
+            for omodel in models_to_try:
+                if not omodel:
+                    continue
+                try:
+                    content = _call_ollama(prompt, omodel, temperature, max_tokens)
+                    if content:
+                        logger.info("Ollama fallback succeeded with model: %s", omodel)
+                        break
+                except Exception as ollama_err:
+                    last_err = ollama_err
+                    logger.debug("Ollama model %s failed: %s", omodel, ollama_err)
+                    continue
+            else:
+                logger.error("Ollama fallback failed (tried: %s): %s", ", ".join(models_to_try), last_err)
+                return {
+                    "raw_reasoning": f"Error: Chutes rate limited. Ollama fallback failed. Run: ollama pull llama3",
+                    "decision": "HOLD",
+                    "confidence": 0,
+                    "next_check_minutes": 15,
+                }
+        else:
+            raise
     except requests.RequestException as e:
         err_msg = str(e)
         resp = getattr(e, "response", None)

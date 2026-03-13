@@ -240,7 +240,7 @@ python agent.py --symbol BTC/USDT --exchange binance --mode paper
 ```
 > On Ubuntu/Linux, use `python3` if `python` is not available: `python3 agent.py --symbol BTC/USDT --exchange binance --mode paper`
 >
-> **Note:** A valid `CHUTES_API_KEY` in `.env` is required for LLM reasoning. Without it, the agent defaults to HOLD for safety.
+> **Note:** `CHUTES_API_KEY` is required. When Chutes returns 429 (rate limit), the agent automatically falls back to **local Ollama**. Install [Ollama](https://ollama.ai) and run `ollama pull llama3` or `ollama pull llama3.2` for fallback support.
 
 ---
 
