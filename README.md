@@ -198,9 +198,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ## 🛠️ Installation
 
 ### Prerequisites
-- Python 3.10+
+- **Python 3.10+** (Ubuntu: `sudo apt install python3 python3-venv python3-pip`)
 - [Ollama](https://ollama.ai) installed locally
-- Exchange API keys (read + spot trade permissions)
+- Exchange API keys (read + spot trade) — *optional for paper mode*
 - GPU: 8GB+ VRAM or Apple Silicon M1/M2/M3
 
 ### 1. Clone
@@ -209,27 +209,41 @@ git clone https://github.com/YOUR_USERNAME/autonomous-ai-trading-agent-llama3.gi
 cd autonomous-ai-trading-agent-llama3
 ```
 
-### 2. Install Dependencies
+### 2. Install Dependencies (recommended: use a virtual environment)
 ```bash
+python3 -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
+> **Important:** You must run `source venv/bin/activate` before running the agent. Your prompt will show `(venv)` when active.
+
+> **Alternative (system install):** `pip3 install -r requirements.txt` or `python3 -m pip install -r requirements.txt`
 
 ### 3. Pull Llama 3 Locally
 ```bash
 ollama pull llama3          # 8B — runs on 8GB VRAM
 ollama pull llama3:70b      # 70B — requires 24GB+ VRAM
 ```
+> Without Ollama/llama3, the agent still runs but defaults to HOLD for safety.
 
-### 4. Configure
+### 4. Configure (optional for paper mode)
 ```bash
 cp .env.example .env
-# Add your exchange API keys and news API token
+# Add exchange API keys for live trading; add CRYPTOPANIC_API_KEY for news sentiment
 ```
 
-### 5. Run in Paper Mode First
+### 5. Verify Setup (optional)
+```bash
+python verify_setup.py   # or python3 verify_setup.py
+```
+
+### 6. Run in Paper Mode First
 ```bash
 python agent.py --symbol BTC/USDT --exchange binance --mode paper
 ```
+> On Ubuntu/Linux, use `python3` if `python` is not available: `python3 agent.py --symbol BTC/USDT --exchange binance --mode paper`
+>
+> **Note:** Ensure [Ollama](https://ollama.ai) is running (`ollama serve`) and you have pulled `llama3` (`ollama pull llama3`) for full LLM reasoning. Without Ollama, the agent defaults to HOLD.
 
 ---
 
@@ -277,6 +291,7 @@ autonomous-ai-trading-agent-llama3/
 ├── act.py                ← CCXT order execution
 ├── sentiment.py          ← News scoring module
 ├── config.yaml           ← Strategy configuration
+├── verify_setup.py       ← Setup verification script
 ├── requirements.txt
 ├── .env.example
 └── README.md

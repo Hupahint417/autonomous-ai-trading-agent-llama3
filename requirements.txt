@@ -1,0 +1,20 @@
+# Autonomous AI Trading Agent - Dependencies
+# Python 3.10+
+
+# Exchange connectivity
+ccxt>=4.0.0
+
+# LLM (Ollama local)
+ollama>=0.4.0
+
+# Technical analysis
+ta>=0.11.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Configuration
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# HTTP requests (news APIs)
+requests>=2.31.0

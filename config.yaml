@@ -1,0 +1,26 @@
+# Autonomous AI Trading Agent - Strategy Configuration
+
+trading:
+  symbol: "BTC/USDT"
+  exchange: "binance"        # binance | bybit | okx | kraken | kucoin | coinbase
+  timeframe: "15m"
+  mode: "paper"              # paper | live
+  position_size_pct: 5
+
+llm:
+  model: "llama3"
+  temperature: 0.2
+  max_tokens: 512
+
+indicators:
+  rsi_period: 14
+  ema_fast: 9
+  ema_slow: 21
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+
+news:
+  provider: "cryptopanic"    # cryptopanic | finnhub
+  lookback_hours: 2
+  max_headlines: 5
